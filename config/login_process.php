@@ -11,7 +11,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // Prepare and execute query securely
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
     $stmt->bindParam(':email', $email);
     $stmt->execute();
@@ -19,31 +18,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->rowCount() === 1) {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verify password
         if (password_verify($password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['name'] = $user['name'];
             $_SESSION['role'] = $user['role'];
 
-            // Redirect based on role
-            switch ($user['role']) {
-                case 'student':
-                    header("Location: /students/dashboard.php");
-                    break;
-                case 'employer':
-                    header("Location: /employers/dashboard.php");
-                    break;
-                default:
-                    header("Location: /auth/login.php?error=" . urlencode("Invalid role detected."));
-                    break;
+            $base_url = "http://localhost/prmsumikap";
+
+            if ($user['role'] === 'student') {
+                header("Location: {$base_url}/student/dashboard.php");
+                exit;
+            } 
+            else if ($user['role'] === 'employer') {
+                header("Location: {$base_url}/employer/employer_dashboard.php");
+                exit;
+            } 
+            else {
+                header("Location: {$base_url}/auth/login.php?error=" . urlencode("Invalid role detected."));
+                exit;
             }
-            exit;
+
         } else {
-            header("Location: /auth/login.php?error=" . urlencode("Invalid password."));
+            header("Location: ../auth/login.php?error=" . urlencode("Invalid password."));
             exit;
         }
     } else {
-        header("Location: /auth/login.php?error=" . urlencode("Email not found."));
+        header("Location: ../auth/login.php?error=" . urlencode("Email not found."));
         exit;
     }
 }
