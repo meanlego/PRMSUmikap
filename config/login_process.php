@@ -1,13 +1,13 @@
 <?php
 session_start();
-include __DIR__ . '/../database/db_prmsumikap.php'; // includes your PDO connection
+include __DIR__ . '/../database/prmsumikap_db.php'; // includes your PDO connection
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
     if (empty($email) || empty($password)) {
-        header("Location: /auth/login.php?error=" . urlencode("Please fill in all fields."));
+        header("Location: ../auth/login.php?error=" . urlencode("Please fill in all fields."));
         exit;
     }
 
@@ -32,9 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     break;
                 case 'employer':
                     header("Location: /employers/dashboard.php");
-                    break;
-                case 'admin':
-                    header("Location: /admin/dashboard.php");
                     break;
                 default:
                     header("Location: /auth/login.php?error=" . urlencode("Invalid role detected."));

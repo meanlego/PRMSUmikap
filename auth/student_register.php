@@ -1,6 +1,6 @@
 <?php 
 include __DIR__ . '/../includes/header.php';
-include __DIR__ . '/../database/db_prmsumikap.php';
+include __DIR__ . '/../database/prmsumikap_db.php';
 
 // Determine role from URL, default to student
 $role = $_GET['role'] ?? 'student';
@@ -9,7 +9,7 @@ $role = $_GET['role'] ?? 'student';
 <div class="container mt-5" style="max-width: 500px;">
   <div class="card shadow border-0">
     <div class="card-body">
-      <h3 class="text-center mb-4 text-primary fw-bold"><?= ucfirst($role) ?> Registration</h3>
+      <h3 class="text-center mb-4 text-primary fw-bold">Student Registration</h3>
 
       <?php if (isset($_GET['error'])): ?>
         <div class="alert alert-danger"><?= htmlspecialchars($_GET['error']) ?></div>
@@ -17,18 +17,18 @@ $role = $_GET['role'] ?? 'student';
         <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>
       <?php endif; ?>
 
-      <form action="/../config/student_register_process.php" method="POST">
-        <input type="hidden" name="role" value="<?= htmlspecialchars($role) ?>">
+      <form action="../config/student_register_process.php" method="POST">
+
+        <input type="hidden" name="role" value="student">
 
         <div class="mb-3">
           <label for="name" class="form-label fw-semibold">Name</label>
           <input type="text" name="name" id="name" class="form-control" placeholder="Enter your full name" required>
         </div>
 
-        <?php if ($role === 'student'): ?>
         <div class="mb-3">
-          <label for="student_id" class="form-label fw-semibold">Student ID</label>
-          <input type="text" name="student_id" id="student_id" class="form-control" placeholder="Enter your student ID" required>
+          <label for="student_number" class="form-label fw-semibold">Student Number</label>
+          <input type="text" name="student_number" id="student_number" class="form-control" placeholder="Enter your student number" required>
         </div>
 
         <div class="mb-3">
@@ -40,7 +40,6 @@ $role = $_GET['role'] ?? 'student';
           <label for="year_level" class="form-label fw-semibold">Year Level</label>
           <input type="text" name="year_level" id="year_level" class="form-control" placeholder="e.g., 3rd Year" required>
         </div>
-        <?php endif; ?>
 
         <div class="mb-3">
           <label for="email" class="form-label fw-semibold">Email</label>

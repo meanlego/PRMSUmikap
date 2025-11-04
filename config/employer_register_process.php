@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../database/db_prmsumikap.php';
+include __DIR__ . '/../database/prmsumikap_db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../auth/employer_register.php');

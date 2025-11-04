@@ -1,5 +1,6 @@
+
 <?php include __DIR__ . '/../includes/header.php'; ?>
-<?php include __DIR__ . '/../database/db_prmsumikap.php'; ?> <!-- ✅ fixed filename -->
+<?php include __DIR__ . '/../database/prmsumikap_db.php'; ?> <!-- ✅ fixed filename -->
 
 <div class="d-flex justify-content-center align-items-center bg-light" style="min-height: calc(100vh - 150px);">
   <div class="card shadow border-0 p-4" style="width: 400px; border-radius: 15px;">
@@ -15,7 +16,7 @@
     ?>
 
     <!-- ✅ fixed action path -->
-    <form method="POST" action="/../config/login_process.php">
+    <form method="POST" action="../config/login_process.php">
       <div class="mb-3">
         <label for="email" class="form-label fw-semibold">Email</label>
         <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required autofocus>
