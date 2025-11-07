@@ -42,6 +42,7 @@ if (!$job) {
 <meta charset="UTF-8">
 <title>Edit Job | PRMSUmikap</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap/assets/images/favicon.png">
 </head>
 <body class="bg-light p-5">
 <div class="container bg-white p-5 rounded shadow">
