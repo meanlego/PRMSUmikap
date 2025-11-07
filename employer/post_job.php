@@ -1,46 +1,6 @@
 <?php
 session_start();
-include __DIR__ . '/../database/prmsumikap_db.php';
-
-// Check if user is an employer
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
-    header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
-    exit;
-}
-
-// Get the employer ID from user session
-$user_id = $_SESSION['user_id'];
-
-$stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
-$stmt->execute([$user_id]);
-$employer = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$employer) {
-    die("Employer record not found.");
-}
-
-$employer_id = $employer['employer_id'];
-$message = "";
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['job_title']);
-    $description = trim($_POST['job_description']);
-    $location = trim($_POST['job_location']);
-    $type = $_POST['job_type'];
-    $salary = trim($_POST['salary_range']);
-    $status = $_POST['status'];
-
-    if (!empty($title) && !empty($description)) {
-        $stmt = $pdo->prepare("INSERT INTO jobs (employer_id, job_title, job_description, job_location, job_type, salary_range, status, date_posted) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->execute([$employer_id, $title, $description, $location, $type, $salary, $status]);
-
-        $message = '<div class="alert alert-success">Job posted successfully!</div>';
-    } else {
-        $message = '<div class="alert alert-danger">Please fill in all required fields.</div>';
-    }
-}
+  include __DIR__. '/../includes/sidebar.php';
 ?>
 
 <!DOCTYPE html>
@@ -62,8 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
 <body>
-
-    <?php include __DIR__. '/../includes/sidebar.php'; ?>
     <div id="main-content">
     <div class="welcome-card mb-4">
         <h1 class="display-5 fw-bold mt-2">Post a New Job</h1>
@@ -73,13 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
    <div class="card p-5">
       <h3 class="fw-bold mb-4 text-center">Job Details</h3>
 
-      <form method="POST" action="POST">
-        <div class="container my-5">
-        <!-- Job Title -->
-        <div class="mb-3">
-          <label class="form-label">Job Title <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" name="job_title" placeholder="e.g., Senior Software Engineer" required>
-        </div>
+      <form id="jobForm" action="../config/job_post_process.php" method="POST">
+
+  <!-- Hidden status input -->
+  <input type="hidden" name="status" id="jobStatus" value="draft">
+
+  <!-- Job Title -->
+  <div class="mb-3">
+    <label class="form-label">Job Title <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" name="job_title" placeholder="e.g., Senior Software Engineer" required>
+  </div>
 
         <!-- Job Type & Work Arrangement -->
         <div class="row g-3">
@@ -107,19 +68,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Location -->
         <div class="mt-3 mb-3">
-          <label class="form-label">Location</label>
-          <input type="text" class="form-control" name="location" placeholder="e.g., San Francisco, CA">
+          <label class="form-label">Location <span class="text-danger">*</span></label>
+          <input type="text" class="form-control" name="job_location" placeholder="e.g., Palanginan, Iba, Zambales" required>
         </div>
 
         <!-- Salary -->
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">Min Salary (Optional)</label>
-            <input type="number" class="form-control" name="min_salary" placeholder="50000">
+            <label class="form-label">Minimum Salary <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="min_salary" placeholder="50000" required>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Max Salary (Optional)</label>
-            <input type="number" class="form-control" name="max_salary" placeholder="80000">
+            <label class="form-label">Maximum Salary <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="max_salary" placeholder="80000" required>
           </div>
         </div>
 
@@ -131,25 +92,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Responsibilities -->
         <div class="mb-3">
-          <label class="form-label">Responsibilities</label>
-          <textarea class="form-control" name="responsibilities" rows="3" placeholder="List the key responsibilities..."></textarea>
+          <label class="form-label">Responsibilities <span class="text-danger">*</span></label>
+          <textarea class="form-control" name="job_responsibilities" rows="3" placeholder="List the key responsibilities..." required></textarea>
         </div>
 
         <!-- Qualifications -->
         <div class="mb-4">
-          <label class="form-label">Qualifications</label>
-          <textarea class="form-control" name="qualifications" rows="3" placeholder="List required skills, experience, education..."></textarea>
+          <label class="form-label">Qualifications <span class="text-danger">*</span></label>
+          <textarea class="form-control" name="job_qualifications" rows="3" placeholder="List required skills, experience, education..." required></textarea>
         </div>
 
         <!-- Buttons -->
-        <div class="d-flex justify-content-between">
-          <button type="reset" class="btn btn-outline-secondary">Save as Draft</button>
-          <button type="submit" class="btn btn-primary">Publish Job</button>
+       <div class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-outline-secondary" id="saveDraftBtn">Save as Draft</button>
+        <button type="submit" class="btn btn-primary" id="publishBtn">Publish Job</button>
         </div>
       </form>
+        <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+          <h5 class="modal-title" id="resultModalLabel"></h5>
+          <button type="button" class="btn btn-secondary mt-3" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
+  <!-- JS Logic -->
+  <script>
+  const jobForm = document.getElementById('jobForm');
+  const jobStatus = document.getElementById('jobStatus');
+
+  // Save as Draft button
+  document.getElementById('saveDraftBtn').addEventListener('click', () => {
+    jobStatus.value = 'draft';
+    submitJob();
+  });
+
+  // Publish button
+  document.getElementById('publishBtn').addEventListener('click', (e) => {
+    e.preventDefault(); // prevent default submit behavior
+    jobStatus.value = 'active';
+    submitJob();
+  });
+
+
+  function submitJob() {
+    const formData = new FormData(jobForm);
+
+    fetch(jobForm.action, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      const modalLabel = document.getElementById('resultModalLabel');
+      modalLabel.textContent = data.message;
+
+      const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+      modal.show();
+
+      if (data.status === 'success') {
+        jobForm.reset();
+        jobStatus.value = 'draft'; // reset to default
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Something went wrong. Please try again.');
+    });
+  }
+  </script>
 
 
 <!-- Bootstrap JS -->
