@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Check if the user is logged in
+// Redirect if not logged in or not an employer
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
@@ -9,9 +9,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 
 include __DIR__ . '/../database/prmsumikap_db.php';
 
-$employer_id = $_SESSION['user_id'];
+// Get employer_id linked to this user
+$stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$employerProfile = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Fetch all job applications for this employer's jobs
+if (!$employerProfile) {
+    die("Employer profile not found. Please complete your employer profile.");
+}
+
+$employer_id = $employerProfile['employer_id'];
+
+// Fetch all applications for this employer's jobs
 $stmt = $pdo->prepare("
     SELECT 
         applications.application_id,
@@ -28,11 +37,9 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$employer_id]);
 $applicants = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Count total applications
 $totalApplications = count($applicants);
 
-// Get unique job titles for filter
+// Get unique job titles for filter dropdown
 $jobsStmt = $pdo->prepare("SELECT DISTINCT job_title FROM jobs WHERE employer_id = ? ORDER BY job_title");
 $jobsStmt->execute([$employer_id]);
 $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -48,7 +55,7 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
+<!-- Favicon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap/assets/images/favicon.png">
 
 <!-- Custom CSS -->
@@ -59,9 +66,9 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<div id="main-content">
+<div id="main-content" class="container my-5">
 
-  <!-- Header Section -->
+  <!-- Header -->
   <div class="welcome-card mb-4">
       <h1 class="display-5 fw-bold mt-2">All Applicants</h1>
       <p class="fs-5">View and manage all applications across your job postings</p>
@@ -106,7 +113,7 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
   </div>
 
-  <!-- Applications Table or Empty State -->
+  <!-- Applications Table -->
   <?php if ($totalApplications > 0): ?>
   <div class="card border-0 shadow-sm">
     <div class="table-responsive">
@@ -181,6 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const statusValue = statusFilter.value;
         const jobValue = jobFilter.value;
 
+        let visibleIndex = 1;
+
         rows.forEach(row => {
             const name = row.dataset.name;
             const email = row.dataset.email;
@@ -193,16 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (matchesSearch && matchesStatus && matchesJob) {
                 row.style.display = '';
+                row.querySelector('td:first-child').textContent = visibleIndex++;
             } else {
                 row.style.display = 'none';
-            }
-        });
-
-        // Update row numbers
-        let visibleIndex = 1;
-        rows.forEach(row => {
-            if (row.style.display !== 'none') {
-                row.querySelector('td:first-child').textContent = visibleIndex++;
             }
         });
     }

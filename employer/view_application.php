@@ -42,6 +42,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
+$stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$employerProfile = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$employerProfile) {
+    $_SESSION['error_message'] = "Employer profile not found.";
+    header("Location: applicants.php");
+    exit;
+}
+
+$employer_id = $employerProfile['employer_id'];
+
 // Fetch application details along with student, job, and employer info
 $stmt = $pdo->prepare("
     SELECT 
@@ -157,21 +169,43 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <!-- Action Buttons -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
-            <h5 class="fw-bold mb-3">Update Application Status</h5>
-            <div class="d-flex flex-wrap gap-2">
-                <?php foreach(['shortlist'=>'Shortlisted','accept'=>'Accepted','reject'=>'Rejected'] as $key=>$status): ?>
-                <form method="POST" class="d-inline">
-                    <input type="hidden" name="action" value="<?= $key ?>">
-                    <button type="submit" class="btn btn-<?= $key==='shortlist'?'info':($key==='accept'?'success':'danger') ?> action-btn" <?= $application['status']==$status?'disabled':'' ?>>
-                        <i class="bi bi-<?= $key==='shortlist'?'star':'check-circle' ?> me-1"></i> <?= $status ?>
-                    </button>
-                </form>
-                <?php endforeach; ?>
-            </div>
+     <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <h5 class="fw-bold mb-3">Update Application Status</h5>
+        <div class="d-flex flex-wrap gap-2">
+            <?php foreach(['shortlist'=>'Shortlisted','accept'=>'Accepted','reject'=>'Rejected'] as $key=>$status): ?>
+                <!-- Button triggers modal -->
+                <button type="button" class="btn btn-<?= $key==='shortlist'?'info':($key==='accept'?'success':'danger') ?> action-btn" 
+                    data-bs-toggle="modal" data-bs-target="#confirmModal<?= $key ?>"
+                    <?= $application['status']==$status?'disabled':'' ?>>
+                    <i class="bi bi-<?= $key==='shortlist'?'star':'check-circle' ?> me-1"></i> <?= $status ?>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="confirmModal<?= $key ?>" tabindex="-1" aria-labelledby="confirmModalLabel<?= $key ?>" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModalLabel<?= $key ?>">Confirm <?= $status ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        Are you sure you want to mark this application as <strong><?= $status ?></strong>?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <form method="POST" class="d-inline">
+                            <input type="hidden" name="action" value="<?= $key ?>">
+                            <button type="submit" class="btn btn-<?= $key==='shortlist'?'info':($key==='accept'?'success':'danger') ?>">Yes, <?= $status ?></button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
+</div>
 
     <div class="row">
         <!-- Left Column: Student Info -->
@@ -267,14 +301,5 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-// Confirmation for status changes
-document.querySelectorAll('form button[type="submit"]').forEach(button => {
-    button.addEventListener('click', function(e) {
-        const action = this.closest('form').querySelector('input[name="action"]').value;
-        if(!confirm(`Are you sure you want to ${action} this application?`)) e.preventDefault();
-    });
-});
-</script>
 </body>
 </html>

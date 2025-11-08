@@ -35,10 +35,12 @@
         <label class="form-check-label" for="remember">Remember me</label>
       </div>
 
+      
       <div class="d-flex justify-content-between align-items-center">
         <a href="#" class="text-decoration-none small text-primary">Forgot your password?</a>
         <button type="submit" class="btn btn-primary px-4 fw-semibold">Log In</button>
       </div>
+      <p class="text-decoration-none small text-primary"  > Don't have account yet?  <a href="student_register.php"><u>Register </u></a> </p>
     </form>
   </div>
 </div>

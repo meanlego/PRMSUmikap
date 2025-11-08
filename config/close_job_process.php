@@ -2,35 +2,42 @@
 session_start();
 include __DIR__ . '/../database/prmsumikap_db.php';
 
-// Check login
+header('Content-Type: application/json');
+
+// Security check
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
-    header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
-
-// Get employer ID
-$stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
-$stmt->execute([$user_id]);
-$employer = $stmt->fetch(PDO::FETCH_ASSOC);
-$employer_id = $employer['employer_id'] ?? null;
-
-if (!$employer_id) {
-    die("Employer record not found.");
-}
-
-// Process form
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id'])) {
     $job_id = $_POST['job_id'];
+    $user_id = $_SESSION['user_id'];
 
-    $stmt = $pdo->prepare("UPDATE jobs SET status = 'closed' WHERE job_id = ? AND employer_id = ?");
+    // Get employer_id of logged-in user
+    $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $employer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$employer) {
+        echo json_encode(['status' => 'error', 'message' => 'Employer profile not found.']);
+        exit;
+    }
+
+    $employer_id = $employer['employer_id'];
+
+    // Update job status to 'Closed' if it belongs to this employer
+    $stmt = $pdo->prepare("UPDATE jobs SET status = 'Closed' WHERE job_id = ? AND employer_id = ?");
     $stmt->execute([$job_id, $employer_id]);
 
-    header("Location: ../employer/manage_jobs.php?success=" . urlencode("Job successfully closed."));
-    exit;
-} else {
-    header("Location: ../employer/manage_jobs.php?error=" . urlencode("Invalid request."));
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['status' => 'success', 'message' => 'Job closed successfully.', 'job_id' => $job_id]);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Job not found or you are not authorized to close it.']);
+    }
     exit;
 }
+
+echo json_encode(['status' => 'error', 'message' => 'Invalid request.']);
+exit;
 ?>

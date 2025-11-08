@@ -39,7 +39,7 @@ session_start();
   <!-- Job Title -->
   <div class="mb-3">
     <label class="form-label">Job Title <span class="text-danger">*</span></label>
-    <input type="text" class="form-control" name="job_title" placeholder="e.g., Senior Software Engineer" required>
+    <input type="text" class="form-control" name="job_title" placeholder="e.g., Software Engineer" required>
   </div>
 
         <!-- Job Type & Work Arrangement -->
@@ -69,25 +69,25 @@ session_start();
         <!-- Location -->
         <div class="mt-3 mb-3">
           <label class="form-label">Location <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" name="job_location" placeholder="e.g., Palanginan, Iba, Zambales" required>
+          <input type="text" class="form-control" name="job_location" placeholder="e.g., Purok 3, Palanginan, Iba, Zambales" required>
         </div>
 
         <!-- Salary -->
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Minimum Salary <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" name="min_salary" placeholder="50000" required>
+            <input type="number" class="form-control" name="min_salary" placeholder="500" required>
           </div>
           <div class="col-md-6">
             <label class="form-label">Maximum Salary <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" name="max_salary" placeholder="80000" required>
+            <input type="number" class="form-control" name="max_salary" placeholder="1000" required>
           </div>
         </div>
 
         <!-- Description -->
         <div class="mt-3 mb-3">
           <label class="form-label">Job Description <span class="text-danger">*</span></label>
-          <textarea class="form-control" name="job_description" rows="4" placeholder="Describe the role..." required></textarea>
+          <textarea type="text" class="form-control" name="job_description" rows="4" placeholder="Describe the role..." required></textarea>
         </div>
 
         <!-- Responsibilities -->
@@ -139,30 +139,36 @@ session_start();
 
 
   function submitJob() {
-    const formData = new FormData(jobForm);
-
-    fetch(jobForm.action, {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      const modalLabel = document.getElementById('resultModalLabel');
-      modalLabel.textContent = data.message;
-
-      const modal = new bootstrap.Modal(document.getElementById('resultModal'));
-      modal.show();
-
-      if (data.status === 'success') {
-        jobForm.reset();
-        jobStatus.value = 'draft'; // reset to default
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Something went wrong. Please try again.');
-    });
+  // Check if the form is valid
+  if (!jobForm.checkValidity()) {
+    jobForm.reportValidity(); // show validation messages
+    return; // stop submission
   }
+
+  const formData = new FormData(jobForm);
+
+  fetch(jobForm.action, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    const modalLabel = document.getElementById('resultModalLabel');
+    modalLabel.textContent = data.message;
+
+    const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+    modal.show();
+
+    if (data.status === 'success') {
+      jobForm.reset();
+      jobStatus.value = 'draft'; // reset to default
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Something went wrong. Please try again.');
+  });
+}
   </script>
 
 
