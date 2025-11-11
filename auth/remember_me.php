@@ -1,27 +1,7 @@
 <?php
 session_start();
-include __DIR__ . '/../database/prmsumikap_db.php';
-include __DIR__ . '/../functions/auth_functions.php'; // make sure this file exists
-
-// ✅ Auto-login if Remember Me cookie exists
-if (function_exists('checkRememberMeCookie')) {
-    checkRememberMeCookie($pdo);
-}
-
-// Redirect if already logged in
-if (!empty($_SESSION['user_id'])) {
-    $base_url = "http://localhost/prmsumikap";
-    switch (strtolower($_SESSION['role'])) {
-        case 'student':
-            header("Location: {$base_url}/employee/dashboard.php");
-            exit;
-        case 'employer':
-            header("Location: {$base_url}/employer/dashboard.php");
-            exit;
-    }
-}
-
 include __DIR__ . '/../includes/header.php';
+include __DIR__ . '/../database/prmsumikap_db.php';
 ?>
 
 <div class="d-flex justify-content-center align-items-center bg-light" style="min-height: calc(100vh - 150px);">
@@ -39,7 +19,7 @@ include __DIR__ . '/../includes/header.php';
     }
     ?>
 
-    <form method="POST" action="../config/login_process.php" autocomplete="on">
+    <form method="POST" action="../config/remember_me_process.php" autocomplete="on">
       <div class="mb-3">
         <label for="email" class="form-label fw-semibold">Email</label>
         <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required autofocus>
@@ -60,12 +40,15 @@ include __DIR__ . '/../includes/header.php';
         <button type="submit" class="btn btn-primary px-4 fw-semibold">Log In</button>
       </div>
 
-      <p class="text-decoration-none small text-primary mt-3">
-        Don’t have an account yet?  
-        <a href="student_register.php"><u>Register</u></a>
-      </p>
+      <div class="text-center mt-3">
+        <p class="small text-muted mb-0">
+          Don’t have an account yet?
+          <a href="student_register.php" class="text-primary text-decoration-underline">Register</a>
+        </p>
+      </div>
     </form>
   </div>
 </div>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>
+
