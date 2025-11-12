@@ -1,0 +1,142 @@
+    html, body {
+        height: 100%;
+        margin: 0;
+        background: linear-gradient(to bottom right, #f7f9fc, #e6f0ff);
+    }
+
+    body {
+        display: flex;
+        flex-direction: row;
+        overflow: hidden;
+    }
+
+    #sidebar {
+        width: 280px;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        background: white;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    #sidebar .menu-item.active {
+        background: #2574fcd0;
+        color: white !important;
+        font-weight: bold;
+        border-radius: 1rem;
+    }
+
+    #sidebar .nav-link:hover {
+        background-color: rgba(112, 215, 221, 0.1);
+        color: #0231ff !important;
+    }
+
+    #main-content {
+        flex-grow: 1;
+        padding: 2rem;
+        overflow-y: auto;
+    }
+
+    .welcome-card {
+        background: linear-gradient(90deg, #11bfcb, #2575fc);
+        color: white;
+        padding: 2rem;
+        border-radius: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .welcome-card::before {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        border-radius: 1rem;
+    }
+
+    .stat-card {
+        border-radius: 1rem;
+        background: rgba(255,255,255,0.8);
+        backdrop-filter: blur(8px);
+        padding: 1.5rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    }
+
+    /*manage_jobs*/
+    .nav-pills {
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: start;
+    }
+
+    .nav-pills .nav-item 
+    {
+        flex: 0 0 auto;
+    }
+
+    .card
+    {
+        border-radius: 1rem;
+    }
+
+    .nav-pills .nav-link 
+    {
+        background-color: #f8f9fa;
+        color: #495057;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+    }
+
+    .nav-pills .nav-link:hover 
+    {
+        background-color: #e9ecef;
+    }
+
+    .nav-pills .nav-link.active 
+    {
+        background-color: #fff;
+        color: #000;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        border: 1px solid #dee2e6;
+    }
+
+    .border-dashed 
+    {
+        border: 2px dashed #ced4da;
+    }
+    
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .fade-out {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.4s ease;
+    }
+
+
+    @media (max-width: 768px) {
+        #sidebar {
+            position: fixed;
+            left: -280px;
+            transition: left 0.3s;
+            z-index: 1000;
+        }
+        #sidebar.show {
+            left: 0;
+        }
+        body {
+            flex-direction: column;
+        }
+    }
