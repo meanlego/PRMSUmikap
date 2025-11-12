@@ -6,48 +6,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     exit;
 }
 
-// Include database connection
 require_once '../database/prmsumikap_db.php';
 
 $studentName = $_SESSION['name'];  
 $accountType = ucfirst($_SESSION['role']);
 
-// Get the actual student_id from students_profile table
 try {
     $stmt = $pdo->prepare("SELECT student_id FROM students_profile WHERE user_id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $student_profile = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$student_profile) {
-        // If no student profile exists, set to 0 to avoid errors but show empty state
         $student_id = 0;
     } else {
         $student_id = $student_profile['student_id'];
     }
 } catch(PDOException $e) {
-    // Fallback to avoid breaking the page
     $student_id = 0;
     error_log("Applications page student profile error: " . $e->getMessage());
 }
 
-// Fetch application statistics
 try {
-    // Total applications count
     $totalStmt = $pdo->prepare("SELECT COUNT(*) as total FROM applications WHERE student_id = ?");
     $totalStmt->execute([$student_id]);
     $totalApplications = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Active applications count (Pending + Shortlisted)
     $activeStmt = $pdo->prepare("SELECT COUNT(*) as active FROM applications WHERE student_id = ? AND status IN ('Pending', 'Shortlisted')");
     $activeStmt->execute([$student_id]);
     $activeApplications = $activeStmt->fetch(PDO::FETCH_ASSOC)['active'];
 
-    // Offers count (Accepted status - you might want to add this to your ENUM)
     $offersStmt = $pdo->prepare("SELECT COUNT(*) as offers FROM applications WHERE student_id = ? AND status = 'Accepted'");
     $offersStmt->execute([$student_id]);
     $jobOffers = $offersStmt->fetch(PDO::FETCH_ASSOC)['offers'];
 
-    // Fetch all applications with job details
     $applicationsStmt = $pdo->prepare("
         SELECT a.*, j.job_title, j.job_location, j.job_type, j.min_salary, j.max_salary, 
                e.company_name, e.contact_person,
@@ -69,7 +60,6 @@ try {
     error_log("Applications error: " . $e->getMessage());
 }
 
-// Filter applications by status
 $activeApps = array_filter($allApplications, function($app) {
     return in_array($app['status'], ['Pending', 'Shortlisted']);
 });
@@ -78,7 +68,6 @@ $archivedApps = array_filter($allApplications, function($app) {
     return $app['status'] === 'Rejected';
 });
 
-// Check for success/error messages
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 ?>
@@ -90,11 +79,9 @@ $error = $_GET['error'] ?? '';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Applications | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
 <!-- Custom CSS -->
@@ -127,7 +114,6 @@ $error = $_GET['error'] ?? '';
 
 <div id="main-content">
 
-    <!-- Success/Error Messages -->
     <?php if ($success): ?>
         <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
             <i class="bi bi-check-circle me-2"></i><?php echo htmlspecialchars($success); ?>
@@ -142,12 +128,10 @@ $error = $_GET['error'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Welcome / Header + Stats -->
     <div class="welcome-card mb-4">
         <h1 class="display-5 fw-bold mb-2">My Applications</h1>
         <p class="fs-5 mb-4">Track all your job applications in one place</p>
 
-        <!-- Stats inside welcome-card -->
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="stat-card d-flex align-items-center gap-3 p-3 shadow-sm bg-white bg-opacity-75">
@@ -207,7 +191,6 @@ $error = $_GET['error'] ?? '';
     </div>
 
     <div class="tab-content" id="jobTabsContent">
-        <!-- All Applications Tab -->
         <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
             <?php if (!empty($allApplications)): ?>
                 <?php foreach($allApplications as $application): ?>
@@ -280,7 +263,6 @@ $error = $_GET['error'] ?? '';
             <?php endif; ?>
         </div>
 
-        <!-- Active Tab -->
         <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
             <?php if (!empty($activeApps)): ?>
                 <?php foreach($activeApps as $application): ?>
@@ -338,10 +320,8 @@ $error = $_GET['error'] ?? '';
             <?php endif; ?>
         </div>
 
-        <!-- Offers Tab -->
         <div class="tab-pane fade" id="offers" role="tabpanel" aria-labelledby="offers-tab">
             <?php if ($jobOffers > 0): ?>
-                <!-- You can add specific offer applications here when you have 'Accepted' status -->
                 <div class="card text-center p-5">
                     <div class="card-body">
                         <i class="bi bi-trophy fs-1 text-warning mb-3"></i>
@@ -364,7 +344,6 @@ $error = $_GET['error'] ?? '';
             <?php endif; ?>
         </div>
 
-        <!-- Archived Tab -->
         <div class="tab-pane fade" id="archived" role="tabpanel" aria-labelledby="archived-tab">
             <?php if (!empty($archivedApps)): ?>
                 <?php foreach($archivedApps as $application): ?>

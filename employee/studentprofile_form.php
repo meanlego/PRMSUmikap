@@ -15,7 +15,7 @@
 
 <form method="POST" enctype="multipart/form-data" id="profileForm">
 
-<!-- Header / Profile Pic -->
+
 <div class="welcome-card mb-4 d-flex align-items-center profile-saved">
     <div class="position-relative me-4">
         <img id="profilePreview" src="<?= htmlspecialchars('../' . ($profile['profile_pic'] ?? 'assets/images/default-pfp.png')) ?>"
@@ -33,7 +33,7 @@
     </div>
 </div>
 
-<!-- Personal Information -->
+
 <div class="card border-0 shadow-sm mb-4 profile-saved">
   <div class="card-body px-4">
     <h6 class="fw-bold mb-3"><i class="bi bi-person-vcard me-2"></i>Personal Information</h6>
@@ -70,7 +70,6 @@
   </div>
 </div>
 
-<!-- Basic Info -->
 <div class="card border-0 shadow-sm mb-4 profile-saved">
   <div class="card-body px-4">
     <h6 class="fw-bold mb-3"><i class="bi bi-person me-2"></i>Professional Information</h6>

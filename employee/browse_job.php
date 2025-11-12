@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     exit;
 }
 
-// Include database connection
 require_once '../database/prmsumikap_db.php';
 
 $studentName = $_SESSION['name'];  
@@ -18,18 +17,16 @@ try {
     $student_profile = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$student_profile) {
-        // If no student profile exists, set to 0 to avoid errors
         $student_id = 0;
     } else {
         $student_id = $student_profile['student_id'];
     }
 } catch(PDOException $e) {
-    // Fallback to avoid breaking the page
     $student_id = 0;
     error_log("Browse jobs page student profile error: " . $e->getMessage());
 }
 
-// Build search query
+
 $searchQuery = "";
 $params = [];
 $whereConditions = ["j.status = 'Active'"];
@@ -41,25 +38,23 @@ if (isset($_GET['query']) && !empty(trim($_GET['query']))) {
     $params = array_merge($params, [$searchParam, $searchParam, $searchParam, $searchParam]);
 }
 
-// Job type filter
 if (isset($_GET['job_type']) && !empty($_GET['job_type'])) {
     $whereConditions[] = "j.job_type = ?";
     $params[] = $_GET['job_type'];
 }
 
-// Work arrangement filter
+
 if (isset($_GET['work_arrangement']) && !empty($_GET['work_arrangement'])) {
     $whereConditions[] = "j.work_arrangement = ?";
     $params[] = $_GET['work_arrangement'];
 }
 
-// Location filter
 if (isset($_GET['location']) && !empty($_GET['location'])) {
     $whereConditions[] = "j.job_location LIKE ?";
     $params[] = "%" . $_GET['location'] . "%";
 }
 
-// Build final query
+
 $whereClause = implode(" AND ", $whereConditions);
 $sql = "
     SELECT 
@@ -74,7 +69,6 @@ $sql = "
     ORDER BY j.date_posted DESC
 ";
 
-// Add student_id parameters for application/saved check
 array_unshift($params, $student_id, $student_id);
 
 try {
@@ -86,7 +80,7 @@ try {
     error_log("Database error: " . $e->getMessage());
 }
 
-// Get unique locations for filters
+
 try {
     $locationsStmt = $pdo->query("SELECT DISTINCT job_location FROM jobs WHERE status = 'Active' ORDER BY job_location");
     $locations = $locationsStmt->fetchAll(PDO::FETCH_COLUMN);
@@ -94,7 +88,7 @@ try {
     $locations = [];
 }
 
-// Check for messages
+
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 ?>
@@ -106,14 +100,11 @@ $error = $_GET['error'] ?? '';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Find Jobs | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 <style>
@@ -163,20 +154,17 @@ $error = $_GET['error'] ?? '';
 
     <?php include '../includes/sidebar.php'; ?>
 
-<!-- Loading Spinner -->
 <div class="loading-spinner" id="loadingSpinner">
     <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
 <div id="main-content">
     <div class="welcome-card mb-4">
         <h1 class="display-5 fw-bold mb-3">Find your part-time job</h1>
         <p class="fs-5 mb-4">Discover opportunities from local businesses in your area</p>
 
-        <!-- Success/Error Messages -->
         <?php if ($success): ?>
             <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
                 <i class="bi bi-check-circle me-2"></i><?php echo htmlspecialchars($success); ?>
@@ -204,17 +192,14 @@ $error = $_GET['error'] ?? '';
     </div>
 
     <div class="row g-4">
-        <!-- Filters Sidebar -->
         <div class="col-lg-3">
             <div class="filter-section shadow-sm <?php echo (isset($_GET['job_type']) || isset($_GET['work_arrangement']) || isset($_GET['location'])) ? 'active-filter' : ''; ?>">
                 <h5 class="fw-bold mb-3"><i class="bi bi-funnel me-2"></i>Filters</h5>
                 
-                <!-- Wrap filters in the form -->
                 <form method="GET" id="filterForm">
-                    <!-- Keep search query in hidden field -->
+
                     <input type="hidden" name="query" value="<?php echo isset($_GET['query']) ? htmlspecialchars($_GET['query']) : ''; ?>" id="filterQuery">
-                    
-                    <!-- Job Type Filter -->
+
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Job Type</label>
                         <select name="job_type" class="form-select" onchange="showLoading(); document.getElementById('filterForm').submit()">
@@ -226,7 +211,6 @@ $error = $_GET['error'] ?? '';
                         </select>
                     </div>
 
-                    <!-- Work Arrangement Filter -->
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Work Arrangement</label>
                         <select name="work_arrangement" class="form-select" onchange="showLoading(); document.getElementById('filterForm').submit()">
@@ -237,7 +221,6 @@ $error = $_GET['error'] ?? '';
                         </select>
                     </div>
 
-                    <!-- Location Filter -->
                     <div class="mb-4">
                         <label class="form-label fw-semibold">Location</label>
                         <select name="location" class="form-select" onchange="showLoading(); document.getElementById('filterForm').submit()">
@@ -251,7 +234,6 @@ $error = $_GET['error'] ?? '';
                         </select>
                     </div>
 
-                    <!-- Active Filters Display -->
                     <?php if(isset($_GET['job_type']) || isset($_GET['work_arrangement']) || isset($_GET['location'])): ?>
                         <div class="mb-3 p-3 bg-light rounded">
                             <h6 class="fw-bold mb-2">Active Filters:</h6>
@@ -278,7 +260,6 @@ $error = $_GET['error'] ?? '';
                         </div>
                     <?php endif; ?>
 
-                    <!-- Clear Filters -->
                     <?php if(isset($_GET['query']) || isset($_GET['job_type']) || isset($_GET['work_arrangement']) || isset($_GET['location'])): ?>
                         <a href="browse_job.php" class="btn btn-outline-secondary w-100" onclick="showLoading()">Clear All Filters</a>
                     <?php endif; ?>
@@ -286,9 +267,7 @@ $error = $_GET['error'] ?? '';
             </div>
         </div>
 
-        <!-- Job Listings -->
         <div class="col-lg-9">
-            <!-- Results Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold mb-0">
                     <?php 
@@ -353,7 +332,6 @@ $error = $_GET['error'] ?? '';
                                                 </a>
                                             <?php endif; ?>
                                             
-<!-- Save Job Button -->
 <form method="POST" action="../employee/save_job_process.php" class="d-inline w-100">
     <input type="hidden" name="job_id" value="<?php echo $job['job_id']; ?>">
     <input type="hidden" name="redirect_url" value="<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">
@@ -368,7 +346,7 @@ $error = $_GET['error'] ?? '';
     <?php endif; ?>
 </form>
                                             
-                                            <a href="view_details.php?id=<?php echo $job['job_id']; ?>" 
+                                <a href="view_details.php?id=<?php echo $job['job_id']; ?>" 
                                                class="btn btn-outline-secondary">
                                                 <i class="bi bi-eye me-1"></i>View Details
                                             </a>

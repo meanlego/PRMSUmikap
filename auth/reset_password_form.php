@@ -4,7 +4,7 @@ $error = $_SESSION['reset_error'] ?? '';
 $success = $_SESSION['reset_success'] ?? '';
 $email = $_SESSION['reset_email'] ?? '';
 
-unset($_SESSION['reset_error'], $_SESSION['reset_success']); // clear messages
+unset($_SESSION['reset_error'], $_SESSION['reset_success']);
 ?>
 
 <?php include __DIR__ . '/../includes/header.php'; ?>

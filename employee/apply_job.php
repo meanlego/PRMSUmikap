@@ -8,7 +8,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 
 require_once '../database/prmsumikap_db.php';
 
-// Get the actual student_id from students_profile
 try {
     $stmt = $pdo->prepare("SELECT student_id FROM students_profile WHERE user_id = ?");
     $stmt->execute([$_SESSION['user_id']]);
@@ -33,7 +32,6 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $job_id = intval($_GET['id']);
 
-// Fetch job details including employer_id
 try {
     $stmt = $pdo->prepare("
         SELECT j.*, e.company_name, e.contact_person, j.employer_id
@@ -53,7 +51,6 @@ try {
     exit;
 }
 
-// Check if already applied (using correct student_id)
 try {
     $checkStmt = $pdo->prepare("SELECT * FROM applications WHERE student_id = ? AND job_id = ?");
     $checkStmt->execute([$student_id, $job_id]);
@@ -62,24 +59,23 @@ try {
     $existingApplication = null;
 }
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Check again if already applied (in case of double submission)
+
         $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM applications WHERE student_id = ? AND job_id = ?");
         $checkStmt->execute([$student_id, $job_id]);
         
         if ($checkStmt->fetchColumn() == 0) {
-            // Insert application with correct IDs
+
             $insertStmt = $pdo->prepare("
                 INSERT INTO applications (student_id, job_id, status, date_applied, employer_id, user_id) 
                 VALUES (?, ?, 'Pending', NOW(), ?, ?)
             ");
             $insertStmt->execute([
-                $student_id,           // Correct student_id from students_profile
+                $student_id,         
                 $job_id, 
-                $job['employer_id'],   // employer_id from jobs table
-                $_SESSION['user_id']   // user_id from session
+                $job['employer_id'],  
+                $_SESSION['user_id']   
             ]);
             
             header("Location: job_applications.php?success=" . urlencode("Application submitted successfully!"));
@@ -89,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch(PDOException $e) {
         error_log("Application error: " . $e->getMessage());
-        if ($e->getCode() == 23000) { // Duplicate entry
+        if ($e->getCode() == 23000) { 
             $error = "You have already applied for this position.";
         } else {
             $error = "Failed to submit application. Please try again.";

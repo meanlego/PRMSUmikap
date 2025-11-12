@@ -1,14 +1,13 @@
 <?php
 session_start();
 include __DIR__ . '/../database/prmsumikap_db.php';
-include __DIR__ . '/../functions/auth_functions.php'; // make sure this file exists
+include __DIR__ . '/../functions/auth_functions.php';
 
-// ✅ Auto-login if Remember Me cookie exists
 if (function_exists('checkRememberMeCookie')) {
     checkRememberMeCookie($pdo);
 }
 
-// Redirect if already logged in
+
 if (!empty($_SESSION['user_id'])) {
     $base_url = "http://localhost/prmsumikap";
     switch (strtolower($_SESSION['role'])) {

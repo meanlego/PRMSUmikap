@@ -19,7 +19,7 @@
         A web-based platform for PRMSU students to find part-time jobs that fit their skills and academic schedules.
       </p>
 
-          <!-- 🔍 Search Bar -->
+ 
   <div class="d-flex justify-content-center mt-4 mb-5">
     <div class="d-flex w-75 justify-content-center" style="max-width: 600px; gap: 10px;">
       <input id="searchInput" type="text" class="form-control border-primary rounded px-3" 
@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <!-- 📋 Results Container -->
+
   <div id="jobContainer" class="d-flex flex-column align-items-center gap-3"></div>
 
       <div class="mt-3">
@@ -37,7 +37,7 @@
       </div>
     </div>
 
-  <!-- Info Cards -->
+
   <div class="row g-4 justify-content-center">
     <div class="col-md-4">
       <div class="card shadow-sm border-0 h-100">
@@ -104,24 +104,23 @@
   </div>
 </div>
 
-<!-- ⚙️ AJAX Script -->
 <script>
 (function() {
   const searchInput = document.getElementById('searchInput');
   const searchBtn = document.getElementById('searchBtn');
   const jobContainer = document.getElementById('jobContainer');
 
-  // Function to perform AJAX search
+
   function performSearch() {
     const query = searchInput.value.trim();
 
-    // Do nothing if search input is empty
+
     if (query === '') {
-      jobContainer.innerHTML = ''; // clear results
+      jobContainer.innerHTML = ''; 
       return;
     }
 
-    // Show loading state
+
     jobContainer.innerHTML = '<p class="text-muted">Loading...</p>';
 
     fetch('jobs/fetch_jobs.php?search=' + encodeURIComponent(query))
@@ -138,10 +137,9 @@
       });
   }
 
-  // Search button click
   searchBtn.addEventListener('click', performSearch);
 
-  // Press Enter in input triggers search
+
   searchInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -149,7 +147,7 @@
     }
   });
 
-  // Do NOT load jobs on page load
+
 })();
 </script>
 

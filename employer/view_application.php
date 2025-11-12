@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Check if the user is logged in and is an employer
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
@@ -16,14 +16,14 @@ if (!$application_id) {
     exit;
 }
 
-// Handle status update - UPDATED: Now includes 'accept'
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $new_status = '';
 
     switch ($action) {
         case 'shortlist': $new_status = 'Shortlisted'; break;
-        case 'accept': $new_status = 'Accepted'; break;  // Now included
+        case 'accept': $new_status = 'Accepted'; break;  
         case 'reject': $new_status = 'Rejected'; break;
     }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Get employer_id from employers_profile
+
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $employerProfile = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -54,7 +54,7 @@ if (!$employerProfile) {
 
 $employer_id = $employerProfile['employer_id'];
 
-// Fetch application details - FIXED JOIN and added resume field
+
 $stmt = $pdo->prepare("
     SELECT 
         applications.application_id,
@@ -91,10 +91,10 @@ if (!$application) {
     exit;
 }
 
-// Use student's user_id for education/experience queries - FIXED
+
 $studentUserId = $application['student_user_id'];
 
-// Fetch additional student info
+
 $skillsStmt = $pdo->prepare("SELECT skill_name FROM student_skills WHERE user_id = ?");
 $skillsStmt->execute([$studentUserId]);
 $skills = $skillsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -131,7 +131,7 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 <div id="main-content">
-    <!-- Messages -->
+  
     <?php if (isset($_SESSION['success_message'])): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
@@ -154,7 +154,7 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
         </a>
     </div>
 
-    <!-- Application Header -->
+   
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body d-flex justify-content-between align-items-center">
             <div>
@@ -171,7 +171,6 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Action Buttons - UPDATED: Now includes 'accept' -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <h5 class="fw-bold mb-3">Update Application Status</h5>
@@ -188,7 +187,6 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
                         <i class="bi bi-<?= $icon ?> me-1"></i> <?= $status ?>
                     </button>
 
-                    <!-- Modal -->
                     <div class="modal fade" id="confirmModal<?= $key ?>" tabindex="-1" aria-labelledby="confirmModalLabel<?= $key ?>" aria-hidden="true">
                       <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -215,7 +213,6 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <div class="row">
-        <!-- Left Column: Student Info -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
@@ -246,7 +243,6 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </div>
 
-        <!-- Right Column: Job & Education/Experience -->
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
@@ -295,12 +291,10 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <?php if(!empty($application['resume'])): ?>
     <?php
-    // Correct path to resumes directory
     $resumePath = '../uploads/resumes/' . htmlspecialchars($application['resume']);
     $fileExists = file_exists($resumePath);
     $fileExtension = pathinfo($application['resume'], PATHINFO_EXTENSION);
-    
-    // Map file extensions to icons
+
     $fileIcons = [
         'pdf' => 'bi-file-earmark-pdf text-danger',
         'doc' => 'bi-file-earmark-word text-primary',
@@ -336,7 +330,6 @@ $experience = $experienceStmt->fetchAll(PDO::FETCH_ASSOC);
                     <i class="bi bi-x-circle me-2"></i>File Unavailable
                 </button>
                 <?php
-                // Debug information (remove in production)
                 echo '<div class="mt-2 text-start small">';
                 echo '<strong>Debug info:</strong><br>';
                 echo 'Expected path: ' . $resumePath . '<br>';

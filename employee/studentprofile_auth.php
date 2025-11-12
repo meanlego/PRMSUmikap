@@ -2,7 +2,6 @@
 session_start();
 require_once '../database/prmsumikap_db.php';
 
-// Authentication
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
@@ -11,13 +10,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 $studentId = $_SESSION['user_id'];
 $studentName = $_SESSION['name'];
 
-// Fetch email from users table
 $stmt = $pdo->prepare("SELECT email FROM users WHERE user_id = ?");
 $stmt->execute([$studentId]);
 $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 $studentEmail = $userData['email'] ?? 'example@email.com';
 
-// Dropdowns
 $phProvinces = [
     'Zambales', 'Other'
 ];
@@ -28,12 +25,10 @@ $zambalesCities = [
     'Masinloc', 'Candelaria', 'Santa Cruz'
 ];
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // Update basic profile
         $stmt = $pdo->prepare("UPDATE students_profile SET 
             headline = ?, bio = ?, phone = ?, city = ?, province = ?, 
             birthdate = ?, gender = ?, student_type = ?, year_level = ?, address = ?
@@ -57,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Failed to update basic profile");
         }
 
-        // Profile picture upload
         if (!empty($_FILES['profile_pic']['name']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
             $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
             $fileType = mime_content_type($_FILES['profile_pic']['tmp_name']);
@@ -75,10 +69,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-
-        // RESUME UPLOAD 
+ 
         if(isset($_FILES['resume']) && $_FILES['resume']['error'] === UPLOAD_ERR_OK){
-            // Use this path - it's the most reliable
+
             $uploadDir = __DIR__ . '/../uploads/resumes/';
             
             if(!is_dir($uploadDir)) {
@@ -98,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        // Skills - Delete and reinsert
+
         $deleteSkills = $pdo->prepare("DELETE FROM student_skills WHERE user_id = ?");
         if (!$deleteSkills->execute([$studentId])) {
             throw new Exception("Failed to delete skills");
@@ -116,7 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Work Experience - Delete and reinsert
         $deleteExp = $pdo->prepare("DELETE FROM student_experience WHERE user_id = ?");
         if (!$deleteExp->execute([$studentId])) {
             throw new Exception("Failed to delete experience");
@@ -139,7 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Education - Delete and reinsert
         $deleteEdu = $pdo->prepare("DELETE FROM student_education WHERE user_id = ?");
         if (!$deleteEdu->execute([$studentId])) {
             throw new Exception("Failed to delete education");
@@ -175,7 +166,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch fresh data
 try {
     $profile = $pdo->prepare("SELECT * FROM students_profile WHERE user_id = ?");
     $profile->execute([$studentId]);
@@ -201,7 +191,6 @@ try {
     $education = [];
 }
 
-// Force no cache
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");

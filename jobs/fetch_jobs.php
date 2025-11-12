@@ -1,10 +1,9 @@
 <?php
-include __DIR__ . '/../database/prmsumikap_db.php'; // fixed path
+include __DIR__ . '/../database/prmsumikap_db.php'; 
 
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
 if ($search === '') {
-    // If no search term, return nothing
     exit;
 }
 

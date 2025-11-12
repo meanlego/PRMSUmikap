@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Redirect if not logged in or not an employer
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 
 include __DIR__ . '/../database/prmsumikap_db.php';
 
-// Get employer_id linked to this user
+
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $employerProfile = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -20,7 +20,7 @@ if (!$employerProfile) {
 
 $employer_id = $employerProfile['employer_id'];
 
-// Fetch all applications for this employer's jobs - FIXED JOIN
+
 $stmt = $pdo->prepare("
     SELECT 
         applications.application_id,
@@ -40,7 +40,6 @@ $stmt->execute([$employer_id]);
 $applicants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $totalApplications = count($applicants);
 
-// Get unique job titles for filter dropdown
 $jobsStmt = $pdo->prepare("SELECT DISTINCT job_title FROM jobs WHERE employer_id = ? ORDER BY job_title");
 $jobsStmt->execute([$employer_id]);
 $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -52,14 +51,11 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Applicants | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Favicon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
@@ -69,7 +65,6 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <div id="main-content" class="container my-5">
 
-  <!-- Header -->
   <div class="welcome-card mb-4">
       <h1 class="display-5 fw-bold mt-2">All Applicants</h1>
       <p class="fs-5">View and manage all applications across your job postings</p>
@@ -82,7 +77,6 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
   </div>
 
-  <!-- Filter Section -->
   <div class="card mb-4 border-0 shadow-sm">
       <div class="card-body">
           <div class="row g-3 align-items-center">
@@ -115,7 +109,6 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
   </div>
 
-  <!-- Applications Table -->
   <?php if ($totalApplications > 0): ?>
   <div class="card border-0 shadow-sm">
     <div class="table-responsive">
@@ -143,11 +136,12 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
               <td><?= htmlspecialchars($row['email']) ?></td>
               <td><?= htmlspecialchars($row['job_title']) ?></td>
               <td>
-                <span class="badge bg-<?= 
-                  $row['status'] === 'Shortlisted' ? 'success' : 
-                  ($row['status'] === 'Rejected' ? 'danger' : 'warning') ?>">
-                  <?= htmlspecialchars($row['status']) ?>
-                </span>
+                   <span class="badge bg-<?= 
+                    $row['status'] === 'Accepted' ? 'success' : 
+                    ($row['status'] === 'Shortlisted' ? 'info' : 
+                    ($row['status'] === 'Rejected' ? 'danger' : 'warning')) ?>">
+                    <?= htmlspecialchars($row['status']) ?>
+                   </span>
               </td>
               <td><?= date('M d, Y', strtotime($row['date_applied'])) ?></td>
               <td>
@@ -174,11 +168,10 @@ $jobs = $jobsStmt->fetchAll(PDO::FETCH_ASSOC);
 
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-// Filter functionality
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const statusFilter = document.getElementById('statusFilter');

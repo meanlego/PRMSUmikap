@@ -2,7 +2,6 @@
 include __DIR__ . '/../database/prmsumikap_db.php';
 session_start();
 
-// --- Security Check ---
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
@@ -13,7 +12,6 @@ if (!$user_id) {
     die("User session not found. Please log in again.");
 }
 
-// --- Get Employer ID ---
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $employer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -25,7 +23,7 @@ if (!$employer) {
 $employer_id = $employer['employer_id'];
 $message = "";
 
-// --- Handle Form Submission ---
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = htmlspecialchars(trim($_POST['job_title'] ?? ''));
     $description = htmlspecialchars(trim($_POST['job_description'] ?? ''));

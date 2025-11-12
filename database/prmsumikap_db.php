@@ -1,7 +1,7 @@
 <?php
 $host = 'localhost';
 $username = 'root';
-$password = ''; // leave empty for default XAMPP
+$password = ''; 
 $database = 'db_prmsumikap';
 
 try {

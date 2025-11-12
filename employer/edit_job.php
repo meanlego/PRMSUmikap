@@ -2,7 +2,6 @@
 session_start();
 include __DIR__ . '/../database/prmsumikap_db.php';
 
-// Check if logged in as employer
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
   header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
   exit;
@@ -10,7 +9,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch employer ID
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $employer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -20,7 +18,6 @@ if (!$employer_id) {
   die("Employer record not found.");
 }
 
-// Get the job to edit
 if (!isset($_GET['id'])) {
   header("Location: manage_jobs.php");
   exit;
@@ -42,14 +39,11 @@ if (!$job) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Job | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
@@ -65,17 +59,15 @@ if (!$job) {
             <p class="text-muted">Update your job details and publish changes</p>
           </div>
       </div>
-  <!-- Header -->
   
 
-  <!-- Form Card -->
   <div class="card border-0 shadow-sm">
     <div class="card-body p-4">
       <form id="jobForm" action="../config/edit_job_process.php" method="POST">
         <input type="hidden" name="job_id" value="<?= htmlspecialchars($job['job_id']) ?>">
         <input type="hidden" name="status" id="jobStatus" value="Active">
 
-        <!-- Job Title -->
+       
         <div class="mb-4">
           <label class="form-label fw-semibold">Job Title <span class="text-danger">*</span></label>
           <input type="text" class="form-control" name="job_title" 
@@ -83,7 +75,6 @@ if (!$job) {
                  placeholder="e.g., Senior Software Engineer" required>
         </div>
 
-        <!-- Job Description -->
         <div class="mb-4">
           <label class="form-label fw-semibold">Job Description <span class="text-danger">*</span></label>
           <textarea class="form-control" name="job_description" rows="5" 
@@ -91,7 +82,6 @@ if (!$job) {
                     required><?= htmlspecialchars($job['job_description']) ?></textarea>
         </div>
 
-        <!-- Job Type & Work Arrangement -->
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label fw-semibold">Job Type <span class="text-danger">*</span></label>
@@ -114,7 +104,7 @@ if (!$job) {
           </div>
         </div>
 
-        <!-- Location -->
+
         <div class="mb-4">
           <label class="form-label fw-semibold">Job Location <span class="text-danger">*</span></label>
           <input type="text" class="form-control" name="job_location" 
@@ -122,7 +112,6 @@ if (!$job) {
                  placeholder="e.g., Manila, Philippines" required>
         </div>
 
-        <!-- Salary Range -->
         <div class="row g-3 mb-4">
           <div class="col-md-6">
             <label class="form-label fw-semibold">Minimum Salary (₱)</label>
@@ -138,7 +127,6 @@ if (!$job) {
           </div>
         </div>
 
-        <!-- Qualifications -->
         <div class="mb-4">
           <label class="form-label fw-semibold">Qualifications</label>
           <textarea class="form-control" name="job_qualifications" rows="4" 
@@ -146,7 +134,7 @@ if (!$job) {
           <small class="text-muted">Optional: List education, experience, and skills required</small>
         </div>
 
-        <!-- Responsibilities -->
+
         <div class="mb-4">
           <label class="form-label fw-semibold">Responsibilities</label>
           <textarea class="form-control" name="job_responsibilities" rows="4" 
@@ -154,7 +142,6 @@ if (!$job) {
           <small class="text-muted">Optional: Describe what the candidate will be doing</small>
         </div>
 
-        <!-- Action Buttons -->
         <div class="d-flex justify-content-end gap-2 pt-3 border-top">
           <a href="manage_jobs.php" class="btn btn-outline-secondary px-4">
             <i class="bi bi-x-circle me-2"></i>Cancel
@@ -171,7 +158,7 @@ if (!$job) {
   </div>
 </div>
 
-<!-- Success Modal -->
+
 <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg">
@@ -189,7 +176,7 @@ if (!$job) {
   </div>
 </div>
 
-<!-- Error Modal -->
+
 <div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg">
@@ -215,7 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveDraftBtn = document.getElementById('saveDraftBtn');
   const publishBtn = document.getElementById('publishBtn');
 
-  // Save as Draft button
   saveDraftBtn.addEventListener('click', function() {
     if (!jobForm.checkValidity()) {
       jobForm.reportValidity();
@@ -226,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
     submitJob('draft');
   });
 
-  // Publish button
+
   publishBtn.addEventListener('click', function() {
     if (!jobForm.checkValidity()) {
       jobForm.reportValidity();
@@ -238,11 +224,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   function submitJob(action) {
-    // Disable buttons
+
     saveDraftBtn.disabled = true;
     publishBtn.disabled = true;
-    
-    // Show loading state
+
     if (action === 'draft') {
       saveDraftBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
     } else {
@@ -278,8 +263,6 @@ document.addEventListener('DOMContentLoaded', function() {
       showError('An unexpected error occurred. Please try again.');
     })
     .finally(() => {
-      // Re-enable buttons and restore text
-      saveDraftBtn.disabled = false;
       publishBtn.disabled = false;
       saveDraftBtn.innerHTML = '<i class="bi bi-file-earmark me-2"></i>Save as Draft';
       publishBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Update & Publish';

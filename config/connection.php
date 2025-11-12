@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$database = "prmsumikap_db"; // change this to your database name
+$database = "prmsumikap_db";
 
 $conn = new mysqli($servername, $username, $password, $database);
 

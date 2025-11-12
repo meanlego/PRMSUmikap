@@ -10,10 +10,9 @@ require_once '../database/prmsumikap_db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id']) && isset($_POST['action'])) {
     
-    // SIMPLE FIX: Get the correct student_id
+
     $user_id = $_SESSION['user_id'];
-    
-    // Quick and direct student_id lookup
+
     $stmt = $pdo->prepare("SELECT student_id FROM students_profile WHERE user_id = ?");
     $stmt->execute([$user_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -21,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id']) && isset($_
     if ($result) {
         $student_id = $result['student_id'];
     } else {
-        // If no student profile, fall back to user_id (like your original code)
+
         $student_id = $user_id;
     }
     
@@ -30,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['job_id']) && isset($_
     
     try {
         if ($action === 'save') {
-            // Use your original working query
             $stmt = $pdo->prepare("INSERT IGNORE INTO saved_jobs (student_id, job_id, saved_date) VALUES (?, ?, NOW())");
             $stmt->execute([$student_id, $job_id]);
             $_SESSION['success'] = "Job saved successfully!";

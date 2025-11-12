@@ -4,7 +4,6 @@ include __DIR__ . '/../database/prmsumikap_db.php';
 
 header('Content-Type: application/json');
 
-// Check login
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized access.']);
     exit;
@@ -12,7 +11,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch employer ID
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $employer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -23,7 +21,6 @@ if (!$employer_id) {
     exit;
 }
 
-// Process update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $job_id = $_POST['job_id'] ?? null;
@@ -36,9 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $max_salary = $_POST['max_salary'] ?? null;
         $qualifications = trim($_POST['job_qualifications'] ?? '');
         $responsibilities = trim($_POST['job_responsibilities'] ?? '');
-        $status = $_POST['status'] ?? 'Active'; // Get status from form
+        $status = $_POST['status'] ?? 'Active';
 
-        // Validation
         if (empty($job_id)) {
             echo json_encode(['status' => 'error', 'message' => 'Job ID is required.']);
             exit;
@@ -49,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Verify job belongs to this employer
         $checkStmt = $pdo->prepare("SELECT job_id FROM jobs WHERE job_id = ? AND employer_id = ?");
         $checkStmt->execute([$job_id, $employer_id]);
         if (!$checkStmt->fetch()) {
@@ -57,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Update the job with status
         $stmt = $pdo->prepare("UPDATE jobs 
             SET job_title = ?, 
                 job_description = ?, 

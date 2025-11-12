@@ -2,7 +2,7 @@
 include __DIR__ . '/../includes/header.php'; 
 include __DIR__ . '/../database/prmsumikap_db.php';
 
-// Get filters from query string
+
 $query = isset($_GET['query']) ? trim($_GET['query']) : '';
 $job_type = isset($_GET['job_type']) ? $_GET['job_type'] : '';
 $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement'] : '';
@@ -10,7 +10,7 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
 
 <div class="container my-5">
   <div class="bg-white p-5 rounded-4 shadow-sm">
-    <!-- Header -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h1 class="fw-bold text-primary mb-2">Find Your Dream Job</h1>
@@ -18,12 +18,11 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
       </div>
     </div>
 
-    <!-- Search & Filter Section -->
+
     <div class="card border-0 bg-light mb-4">
   <div class="card-body">
     <form method="GET" class="row g-3 align-items-end">
-      
-      <!-- Job Type Filter -->
+ 
       <div class="col-md-3">
         <label class="form-label fw-semibold small">Job Type</label>
         <select name="job_type" class="form-select">
@@ -35,7 +34,7 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
         </select>
       </div>
 
-      <!-- Work Setup Filter -->
+ 
       <div class="col-md-3">
         <label class="form-label fw-semibold small">Work Setup</label>
         <select name="work_arrangement" class="form-select">
@@ -46,7 +45,7 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
         </select>
       </div>
 
-      <!-- Search Input -->
+
       <div class="col-md-4">
         <label class="form-label fw-semibold small">Search Jobs</label>
         <div class="input-group">
@@ -59,7 +58,7 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
         </div>
       </div>
 
-      <!-- Submit Button -->
+ 
       <div class="col-md-2 d-grid">
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-search me-2"></i>Search
@@ -71,7 +70,7 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
 </div>
 
     <?php
-    // Build SQL query
+
     $sql = "SELECT * FROM jobs WHERE status='Active'";
     $params = [];
 
@@ -95,14 +94,14 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
 
     $sql .= " ORDER BY date_posted DESC";
 
-    // Execute
+   
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $totalJobs = count($jobs);
     ?>
 
-    <!-- Results Count -->
+  
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h5 class="mb-0">
         <?php if ($totalJobs > 0): ?>
@@ -112,7 +111,6 @@ $work_arrangement = isset($_GET['work_arrangement']) ? $_GET['work_arrangement']
       </h5>
     </div>
 
-    <!-- Job Listings -->
     <?php if ($totalJobs > 0): ?>
       <div class="row row-cols-1 row-cols-md-2 g-4">
         <?php foreach ($jobs as $job): ?>

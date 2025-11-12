@@ -8,9 +8,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password'] ?? '');
     $confirmPassword = trim($_POST['confirm_password'] ?? '');
 
-    $_SESSION['reset_email'] = $email; // preserve email in form
+    $_SESSION['reset_email'] = $email; 
 
-    // Validation
+ 
     if ($password !== $confirmPassword) {
         $_SESSION['reset_error'] = "Passwords do not match.";
         header("Location: reset_password_form.php");
@@ -23,12 +23,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Reset password using the auth function
     $result = resetPasswordByEmail($pdo, $email, $password, $confirmPassword);
 
     if ($result['success']) {
         $_SESSION['reset_success'] = $result['message'];
-        unset($_SESSION['reset_email']); // clear email after success
+        unset($_SESSION['reset_email']); 
     } else {
         $_SESSION['reset_error'] = $result['message'];
     }

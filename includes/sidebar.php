@@ -9,10 +9,10 @@ $name = $_SESSION['name'] ?? '';
 $isStudent = $role === 'student';
 $isEmployer = $role === 'employer';
 
-// Get current page filename
+
 $currentPage = basename($_SERVER['PHP_SELF']);
 
-// Define menu items for each role
+
 $studentMenu = [
     'dashboard.php' => ['icon' => 'bi-grid', 'label' => 'Dashboard'],
     'browse_job.php' => ['icon' => 'bi-search', 'label' => 'Find Jobs'],

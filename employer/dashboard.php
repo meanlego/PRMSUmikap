@@ -19,14 +19,11 @@ $accountType = ucfirst($_SESSION['role']);
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Employer Dashboard | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
@@ -52,7 +49,6 @@ $accountType = ucfirst($_SESSION['role']);
             </div>
         </div>
 
-        <!-- Statistics Cards -->
         <div class="row mb-4 g-4">
             <div class="col-md-4">
                 <div class="stat-card d-flex align-items-center gap-3">
@@ -86,7 +82,6 @@ $accountType = ucfirst($_SESSION['role']);
             </div>
         </div>
 
-        <!-- RECENT POSTED JOBS -->
         <div class="row mb-4">
             <div class="col-lg-12">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -131,7 +126,6 @@ $accountType = ucfirst($_SESSION['role']);
             </div>
         </div>
 
-        <!-- RECENT APPLICANTS -->
         <div class="row">
             <div class="col-lg-12">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -191,7 +185,6 @@ $accountType = ucfirst($_SESSION['role']);
         </div>
     </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

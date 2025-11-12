@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Redirect if not logged in or not employer
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
@@ -10,7 +9,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 include __DIR__ . '/../database/prmsumikap_db.php';
 $user_id = $_SESSION['user_id'];
 
-// Get the employer_id linked to this user
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $employer = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -21,17 +19,14 @@ if (!$employer) {
 
 $employer_id = $employer['employer_id'];
 
-// Fetch all jobs for this employer
 $stmt = $pdo->prepare("SELECT * FROM jobs WHERE employer_id = ? ORDER BY date_posted DESC");
 $stmt->execute([$employer_id]);
 $jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Filter by status
 $active_jobs = array_filter($jobs, fn($job) => $job['status'] === 'Active');
 $draft_jobs  = array_filter($jobs, fn($job) => $job['status'] === 'Draft');
 $closed_jobs = array_filter($jobs, fn($job) => $job['status'] === 'Closed');
 
-// Function to render job card
 function renderJobCard($job) {
     ob_start();
     ?>
@@ -117,7 +112,6 @@ function renderJobCard($job) {
     return ob_get_clean();
 }
 
-// Function to render empty state
 function renderEmptyState($type) {
     $messages = [
         'all' => ['title' => 'No jobs found', 'message' => "You haven't posted any jobs yet", 'showButton' => true],
@@ -153,14 +147,11 @@ function renderEmptyState($type) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Jobs | PRMSUmikap</title>
 
-    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-    <!-- Tab Icon -->
     <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/layout.css">
     <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
@@ -169,7 +160,7 @@ function renderEmptyState($type) {
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
 <div id="main-content">
-    <!-- Header -->
+  
     <div class="welcome-card mb-4 d-flex justify-content-between align-items-center">
         <div>
             <h1 class="display-5 fw-bold mt-2">Manage Jobs</h1>
@@ -180,7 +171,6 @@ function renderEmptyState($type) {
         </a>
     </div>
 
-    <!-- Tabs -->
     <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body py-2">
             <ul class="nav nav-pills justify-content-center gap-2" id="jobTabs" role="tablist">
@@ -204,9 +194,7 @@ function renderEmptyState($type) {
         </div>
     </div>
 
-    <!-- Tab Content -->
     <div class="tab-content" id="jobTabsContent">
-        <!-- All Jobs -->
         <div class="tab-pane fade show active" id="all" role="tabpanel">
             <?php if (empty($jobs)): ?>
                 <?= renderEmptyState('all') ?>
@@ -219,7 +207,6 @@ function renderEmptyState($type) {
             <?php endif; ?>
         </div>
 
-        <!-- Active Jobs -->
         <div class="tab-pane fade" id="active" role="tabpanel">
             <?php if (empty($active_jobs)): ?>
                 <?= renderEmptyState('active') ?>
@@ -232,7 +219,6 @@ function renderEmptyState($type) {
             <?php endif; ?>
         </div>
 
-        <!-- Draft Jobs -->
         <div class="tab-pane fade" id="drafts" role="tabpanel">
             <?php if (empty($draft_jobs)): ?>
                 <?= renderEmptyState('drafts') ?>
@@ -245,7 +231,6 @@ function renderEmptyState($type) {
             <?php endif; ?>
         </div>
 
-        <!-- Closed Jobs -->
         <div class="tab-pane fade" id="closed" role="tabpanel">
             <?php if (empty($closed_jobs)): ?>
                 <?= renderEmptyState('closed') ?>
@@ -260,7 +245,6 @@ function renderEmptyState($type) {
     </div>
 </div>
 
-<!-- Close Job Confirmation Modal -->
 <div class="modal fade" id="closeJobModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-3 shadow-lg border-0">
@@ -304,7 +288,6 @@ function renderEmptyState($type) {
     </div>
 </div>
 
-<!-- Delete Job Confirmation Modal -->
 <div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-3 shadow-lg border-0">
@@ -350,7 +333,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const closeModal = document.getElementById('closeJobModal');
     let deleteJobId = null;
 
-    // ===== DELETE JOB FUNCTIONALITY =====
     deleteModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         deleteJobId = button.getAttribute('data-job-id');
@@ -413,7 +395,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ===== CLOSE JOB FUNCTIONALITY =====
     closeModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         const jobId = button.getAttribute('data-job-id');
@@ -467,7 +448,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ===== HELPER FUNCTIONS =====
     function checkEmptyStates() {
         const tabs = [
             { id: 'all', title: 'jobs', message: "You haven't posted any jobs yet", button: true },
@@ -522,7 +502,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,59 +1,48 @@
 <?php
 session_start();
 
-// Check if the user is logged in
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header("Location: ../auth/login.php?error=" . urlencode("Unauthorized access."));
     exit;
 }
 
-// Include database connection
 require_once '../database/prmsumikap_db.php';
 
 $studentName = $_SESSION['name'];  
 $accountType = ucfirst($_SESSION['role']);
 
-// Get the actual student_id from students_profile table
 try {
     $stmt = $pdo->prepare("SELECT student_id FROM students_profile WHERE user_id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $student_profile = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$student_profile) {
-        // If no student profile exists, set to 0 to avoid errors but show empty dashboard
         $student_id = 0;
     } else {
         $student_id = $student_profile['student_id'];
     }
 } catch(PDOException $e) {
-    // Fallback to avoid breaking the dashboard
     $student_id = 0;
     error_log("Dashboard student profile error: " . $e->getMessage());
 }
 
-// Fetch dashboard statistics
 try {
-    // Total applications count
     $totalStmt = $pdo->prepare("SELECT COUNT(*) as total FROM applications WHERE student_id = ?");
     $totalStmt->execute([$student_id]);
     $totalApplications = $totalStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Active applications count (Pending + Shortlisted)
     $activeStmt = $pdo->prepare("SELECT COUNT(*) as active FROM applications WHERE student_id = ? AND status IN ('Pending', 'Shortlisted')");
     $activeStmt->execute([$student_id]);
     $activeApplications = $activeStmt->fetch(PDO::FETCH_ASSOC)['active'];
 
-    // Job offers count
     $offersStmt = $pdo->prepare("SELECT COUNT(*) as offers FROM applications WHERE student_id = ? AND status = 'Accepted'");
     $offersStmt->execute([$student_id]);
     $jobOffers = $offersStmt->fetch(PDO::FETCH_ASSOC)['offers'];
 
-    // Saved jobs count (if you have a saved_jobs table)
     $savedStmt = $pdo->prepare("SELECT COUNT(*) as saved FROM saved_jobs WHERE student_id = ?");
     $savedStmt->execute([$student_id]);
     $savedJobs = $savedStmt->fetch(PDO::FETCH_ASSOC)['saved'];
 
-    // Fetch recent applications (last 3)
     $recentStmt = $pdo->prepare("
         SELECT a.*, j.job_title, j.job_location, j.job_type, e.company_name
         FROM applications a
@@ -66,7 +55,6 @@ try {
     $recentStmt->execute([$student_id]);
     $recentApplications = $recentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Fetch recommended jobs (latest active jobs)
     $recommendedStmt = $pdo->prepare("
         SELECT j.*, e.company_name
         FROM jobs j 
@@ -79,7 +67,6 @@ try {
     $recommendedJobs = $recommendedStmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch(PDOException $e) {
-    // Handle errors gracefully
     $totalApplications = 0;
     $activeApplications = 0;
     $jobOffers = 0;
@@ -97,14 +84,11 @@ try {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Portal Dashboard | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 <style>
@@ -153,7 +137,6 @@ try {
             </div>
         </div>
 
-        <!-- STAT CARDS -->
         <div class="row mb-4 g-4">
             <div class="col-md-4">
                 <div class="stat-card d-flex align-items-center gap-3">
@@ -189,9 +172,7 @@ try {
             </div>
         </div>
 
-        <!-- RECENT APPLICATIONS & FOR YOU -->
         <div class="row g-4">
-            <!-- Recent Applications Column -->
             <div class="col-lg-8">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="fw-bold"><i class="bi bi-clock-history me-2"></i> Recent Applications</h4>
@@ -238,7 +219,6 @@ try {
                 <?php endif; ?>
             </div>
 
-            <!-- Recommended Jobs Column -->
             <div class="col-lg-4">
                 <h4 class="fw-bold mb-3"><i class="bi bi-star me-2"></i> Recommended For You</h4>
                 
@@ -294,7 +274,6 @@ try {
         </div>
     </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

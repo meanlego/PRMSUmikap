@@ -1,33 +1,15 @@
 <?php
-/**
- * Authentication Functions
- * Remember Me & Direct Password Reset System
- * Compatible with both `user` and `users` tables
- */
 
-// ============================================
-// DATABASE UTILITIES
-// ============================================
-
-/**
- * Detect the correct users table name.
- */
 function getUsersTableName(PDO $pdo): string {
     try {
         $pdo->query("SELECT 1 FROM user LIMIT 1");
         return "user";
     } catch (PDOException $e) {
-        return "users"; // fallback
+        return "users"; 
     }
 }
 
-// ============================================
-// REMEMBER ME FUNCTIONS
-// ============================================
 
-/**
- * Set a Remember Me cookie and store its hashed token in the database.
- */
 function setRememberMeCookie(PDO $pdo, int $userId): bool {
     try {
         $token = bin2hex(random_bytes(32));
@@ -38,7 +20,7 @@ function setRememberMeCookie(PDO $pdo, int $userId): bool {
         $stmt->execute([$userId, $tokenHash, $expiresAt]);
 
         $cookieValue = $userId . ':' . $token;
-        $cookieExpiry = time() + (30 * 24 * 60 * 60); // 30 days
+        $cookieExpiry = time() + (30 * 24 * 60 * 60); 
 
         return setcookie('remember_me', $cookieValue, $cookieExpiry, '/', '', false, true);
     } catch (PDOException $e) {
@@ -47,9 +29,7 @@ function setRememberMeCookie(PDO $pdo, int $userId): bool {
     }
 }
 
-/**
- * Check Remember Me cookie and log user in automatically.
- */
+
 function checkRememberMeCookie(PDO $pdo): bool {
     if (isset($_SESSION['user_id']) || empty($_COOKIE['remember_me'])) {
         return false;
@@ -76,7 +56,6 @@ function checkRememberMeCookie(PDO $pdo): bool {
 
         foreach ($results as $row) {
             if (password_verify($token, $row['token_hash'])) {
-                // Log in user
                 $_SESSION['user_id'] = $row['user_id'];
                 $_SESSION['name'] = $row['name'];
                 $_SESSION['role'] = $row['role'];
@@ -84,7 +63,6 @@ function checkRememberMeCookie(PDO $pdo): bool {
             }
         }
 
-        // Invalid token: delete cookie
         setcookie('remember_me', '', time() - 3600, '/', '', false, true);
         return false;
     } catch (PDOException $e) {
@@ -93,9 +71,7 @@ function checkRememberMeCookie(PDO $pdo): bool {
     }
 }
 
-/**
- * Remove Remember Me tokens from database and delete the cookie.
- */
+
 function removeRememberMeCookie(PDO $pdo, int $userId): void {
     try {
         $stmt = $pdo->prepare("DELETE FROM remember_tokens WHERE user_id = ?");
@@ -106,13 +82,7 @@ function removeRememberMeCookie(PDO $pdo, int $userId): void {
     setcookie('remember_me', '', time() - 3600, '/', '', false, true);
 }
 
-// ============================================
-// DIRECT PASSWORD RESET FUNCTIONS
-// ============================================
 
-/**
- * Reset a user's password directly (no email).
- */
 function resetPasswordByEmail(PDO $pdo, string $email, string $newPassword, string $confirmPassword): array {
     $usersTable = getUsersTableName($pdo);
 
@@ -125,7 +95,6 @@ function resetPasswordByEmail(PDO $pdo, string $email, string $newPassword, stri
     }
 
     try {
-        // Verify email exists
         $stmt = $pdo->prepare("SELECT user_id FROM {$usersTable} WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -138,7 +107,6 @@ function resetPasswordByEmail(PDO $pdo, string $email, string $newPassword, stri
         $stmt = $pdo->prepare("UPDATE {$usersTable} SET password = ? WHERE user_id = ?");
         $stmt->execute([$hashedPassword, $user['user_id']]);
 
-        // Remove remember me tokens to force re-login
         removeRememberMeCookie($pdo, $user['user_id']);
 
         return ['success' => true, 'message' => 'Password updated successfully! You can now log in.'];
@@ -148,13 +116,7 @@ function resetPasswordByEmail(PDO $pdo, string $email, string $newPassword, stri
     }
 }
 
-// ============================================
-// UTILITY FUNCTIONS
-// ============================================
 
-/**
- * Clean up expired Remember Me tokens.
- */
 function cleanupExpiredTokens(PDO $pdo): void {
     try {
         $pdo->exec("DELETE FROM remember_tokens WHERE expires_at < NOW()");
@@ -163,9 +125,7 @@ function cleanupExpiredTokens(PDO $pdo): void {
     }
 }
 
-/**
- * Auto-login if Remember Me cookie exists.
- */
+
 function autoLogin(PDO $pdo): void {
     checkRememberMeCookie($pdo);
 }

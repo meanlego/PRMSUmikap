@@ -1,16 +1,15 @@
 <?php
-// Make sure session and $pdo are ready
+
 if (!isset($_SESSION['user_id'])) {
     exit('Unauthorized access');
 }
 
-// Get the employer_id from employers_profile using the logged-in user_id
+
 $stmt = $pdo->prepare("SELECT employer_id FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $employer = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$employer) {
-    // No employer profile exists - handle this case appropriately
     $activeJobs = $newApplications = $shortListed = 0;
     $recentJobs = $recentApplicants = [];
     $employer_id = null;
@@ -18,7 +17,7 @@ if (!$employer) {
     $employer_id = $employer['employer_id'];
 
     try {
-        // 1️⃣ Active Jobs
+
         $stmt = $pdo->prepare("
             SELECT COUNT(*) 
             FROM jobs 
@@ -27,7 +26,6 @@ if (!$employer) {
         $stmt->execute([$employer_id]);
         $activeJobs = $stmt->fetchColumn() ?: 0;
 
-        // 2️⃣ New Applications This Week
         $stmt = $pdo->prepare("
             SELECT COUNT(*) 
             FROM applications 
@@ -39,7 +37,6 @@ if (!$employer) {
         $stmt->execute([$employer_id]);
         $newApplications = $stmt->fetchColumn() ?: 0;
 
-        // 3️⃣ Shortlisted Applicants
         $stmt = $pdo->prepare("
             SELECT COUNT(*) 
             FROM applications 
@@ -50,7 +47,6 @@ if (!$employer) {
         $stmt->execute([$employer_id]);
         $shortListed = $stmt->fetchColumn() ?: 0;
 
-        // 4️⃣ Recent Posted Jobs
         $stmt = $pdo->prepare("
             SELECT job_title, DATE_FORMAT(date_posted, '%M %d, %Y') as date_posted, status
             FROM jobs
@@ -61,7 +57,6 @@ if (!$employer) {
         $stmt->execute([$employer_id]);
         $recentJobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // 5️⃣ Recent Applicants - FIXED JOIN
         $stmt = $pdo->prepare("
             SELECT 
                 users.name, 
@@ -87,7 +82,6 @@ if (!$employer) {
     }
 }
 
-// Handle case where no employer profile exists
 if (!$employer_id) {
     $activeJobs = $newApplications = $shortListed = 0;
     $recentJobs = $recentApplicants = [];

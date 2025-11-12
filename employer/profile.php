@@ -9,12 +9,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'employer') {
 
 $employerId = $_SESSION['user_id'];
 
-// Fetch user info
+
 $stmt = $pdo->prepare("SELECT name, email FROM users WHERE user_id = ?");
 $stmt->execute([$employerId]);
 $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Fetch employer profile info
 $stmt = $pdo->prepare("SELECT company_name, company_address, contact_number, company_description, contact_person, profile_pic FROM employers_profile WHERE user_id = ?");
 $stmt->execute([$employerId]);
 $profile = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -37,7 +36,7 @@ $employerEmail = $userData['email'] ?? 'example@email.com';
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 
 <style>
-/* Centered popup alert */
+
 #successMessage {
     position: fixed;
     top: 50%;
@@ -56,7 +55,7 @@ $employerEmail = $userData['email'] ?? 'example@email.com';
 
 <?php include __DIR__ . '/../includes/sidebar.php'; ?>
 
-<!-- Success Alert -->
+
 <div id="successMessage" class="alert alert-success alert-dismissible fade d-none" role="alert">
     <i class="bi bi-check-circle-fill me-2"></i>Profile successfully saved!
     <button type="button" class="btn-close" onclick="hideSuccessMessage()"></button>
@@ -64,7 +63,6 @@ $employerEmail = $userData['email'] ?? 'example@email.com';
 
 <div id="main-content" class="p-4">
 
-    <!-- Header Section -->
     <div class="welcome-card mb-4 d-flex align-items-center profile-saved">
         <div class="position-relative me-4">
             <img id="profilePreview" 
@@ -83,9 +81,8 @@ $employerEmail = $userData['email'] ?? 'example@email.com';
         </div>
     </div>
 
-    <!-- Company Information Form -->
     <form id="profileForm" enctype="multipart/form-data">
-        <!-- Hidden file input inside the form -->
+ 
         <input type="file" id="profilePicInput" name="profile_pic" accept=".jpg,.jpeg,.png" class="d-none">
 
         <div class="card border-0 shadow-sm mb-4">
@@ -167,12 +164,11 @@ function hideSuccessMessage() {
     alertBox.classList.add('d-none');
 }
 
-// AJAX form submission
 document.getElementById('profileForm').addEventListener('submit', function(e){
     e.preventDefault();
     const formData = new FormData(this);
 
-    // Make sure the file is included in FormData
+
     const fileInput = document.getElementById('profilePicInput');
     if(fileInput.files.length > 0){
         formData.set('profile_pic', fileInput.files[0]);
@@ -199,7 +195,7 @@ document.getElementById('profileForm').addEventListener('submit', function(e){
     });
 });
 
-// Profile picture preview
+
 document.getElementById('profilePicInput').addEventListener('change', function(e){
     const file = e.target.files[0];
     if(file){
@@ -210,7 +206,7 @@ document.getElementById('profilePicInput').addEventListener('change', function(e
         reader.readAsDataURL(file);
     }
 });
-//Lenght Description 
+
 document.getElementById('profileForm').addEventListener('submit', function(e){
     const textarea = document.getElementById('companyDescription');
     const charCount = textarea.value.trim().length;

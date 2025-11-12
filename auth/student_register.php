@@ -2,7 +2,6 @@
 include __DIR__ . '/../includes/header.php';
 include __DIR__ . '/../database/prmsumikap_db.php';
 
-// Determine role from URL, default to student
 $role = $_GET['role'] ?? 'student';
 ?>
 

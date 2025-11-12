@@ -10,14 +10,11 @@ session_start();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Post Job | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 </head>
@@ -33,16 +30,13 @@ session_start();
 
       <form id="jobForm" action="../config/job_post_process.php" method="POST">
 
-  <!-- Hidden status input -->
   <input type="hidden" name="status" id="jobStatus" value="draft">
 
-  <!-- Job Title -->
   <div class="mb-3">
     <label class="form-label">Job Title <span class="text-danger">*</span></label>
     <input type="text" class="form-control" name="job_title" placeholder="e.g., Software Engineer" required>
   </div>
 
-        <!-- Job Type & Work Arrangement -->
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Job Type <span class="text-danger">*</span></label>
@@ -66,13 +60,11 @@ session_start();
           </div>
         </div>
 
-        <!-- Location -->
         <div class="mt-3 mb-3">
           <label class="form-label">Location <span class="text-danger">*</span></label>
           <input type="text" class="form-control" name="job_location" placeholder="e.g., Purok 3, Palanginan, Iba, Zambales" required>
         </div>
 
-        <!-- Salary -->
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Minimum Salary <span class="text-danger">*</span></label>
@@ -84,25 +76,21 @@ session_start();
           </div>
         </div>
 
-        <!-- Description -->
         <div class="mt-3 mb-3">
           <label class="form-label">Job Description <span class="text-danger">*</span></label>
           <textarea type="text" class="form-control" name="job_description" rows="4" placeholder="Describe the role..." required></textarea>
         </div>
 
-        <!-- Responsibilities -->
         <div class="mb-3">
           <label class="form-label">Responsibilities <span class="text-danger">*</span></label>
           <textarea class="form-control" name="job_responsibilities" rows="3" placeholder="List the key responsibilities..." required></textarea>
         </div>
 
-        <!-- Qualifications -->
         <div class="mb-4">
           <label class="form-label">Qualifications <span class="text-danger">*</span></label>
           <textarea class="form-control" name="job_qualifications" rows="3" placeholder="List required skills, experience, education..." required></textarea>
         </div>
 
-        <!-- Buttons -->
        <div class="d-flex justify-content-end gap-2">
       <button type="button" class="btn btn-outline-secondary" id="saveDraftBtn">Save as Draft</button>
         <button type="submit" class="btn btn-primary" id="publishBtn">Publish Job</button>
@@ -119,30 +107,28 @@ session_start();
   </div>
 </div>
 
-  <!-- JS Logic -->
+
   <script>
   const jobForm = document.getElementById('jobForm');
   const jobStatus = document.getElementById('jobStatus');
 
-  // Save as Draft button
   document.getElementById('saveDraftBtn').addEventListener('click', () => {
     jobStatus.value = 'draft';
     submitJob();
   });
 
-  // Publish button
   document.getElementById('publishBtn').addEventListener('click', (e) => {
-    e.preventDefault(); // prevent default submit behavior
+    e.preventDefault(); 
     jobStatus.value = 'active';
     submitJob();
   });
 
 
   function submitJob() {
-  // Check if the form is valid
+
   if (!jobForm.checkValidity()) {
-    jobForm.reportValidity(); // show validation messages
-    return; // stop submission
+    jobForm.reportValidity(); 
+    return; 
   }
 
   const formData = new FormData(jobForm);
@@ -161,7 +147,7 @@ session_start();
 
     if (data.status === 'success') {
       jobForm.reset();
-      jobStatus.value = 'draft'; // reset to default
+      jobStatus.value = 'draft'; 
     }
   })
   .catch(err => {
@@ -172,7 +158,7 @@ session_start();
   </script>
 
 
-<!-- Bootstrap JS -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

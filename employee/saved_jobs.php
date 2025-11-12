@@ -6,38 +6,31 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     exit;
 }
 
-// Include database connection
 require_once '../database/prmsumikap_db.php';
 
 $studentName = $_SESSION['name'];  
 $accountType = ucfirst($_SESSION['role']);
 
-// Get the actual student_id from students_profile table
 try {
     $stmt = $pdo->prepare("SELECT student_id FROM students_profile WHERE user_id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $student_profile = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$student_profile) {
-        // If no student profile exists, set to 0 to show empty state
         $student_id = 0;
     } else {
         $student_id = $student_profile['student_id'];
     }
 } catch(PDOException $e) {
-    // Fallback to avoid breaking the page
     $student_id = 0;
     error_log("Saved jobs page student profile error: " . $e->getMessage());
 }
 
-// Fetch saved jobs
 try {
-    // Count total saved jobs
     $countStmt = $pdo->prepare("SELECT COUNT(*) as total FROM saved_jobs WHERE student_id = ?");
     $countStmt->execute([$student_id]);
     $totalSaved = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Fetch saved jobs with details
     $savedStmt = $pdo->prepare("
         SELECT sj.*, j.job_title, j.job_description, j.job_location, j.min_salary, j.max_salary, 
                j.job_type, j.work_arrangement, j.date_posted, j.status as job_status,
@@ -58,7 +51,6 @@ try {
     error_log("Saved jobs error: " . $e->getMessage());
 }
 
-// Check for messages
 $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 ?>
@@ -70,14 +62,12 @@ $error = $_GET['error'] ?? '';
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saved Jobs | PRMSUmikap</title>
 
-<!-- Bootstrap & Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
 
-<!-- Tab Icon -->
+
 <link rel="icon" type="image/png" sizes="512x512" href="/prmsumikap-rebase/assets/images/favicon.png">
 
-<!-- Custom CSS -->
 <link rel="stylesheet" href="../assets/css/layout.css">
 <link rel="stylesheet" href="../assets/css/sidebar.css">
 <style>
@@ -113,7 +103,6 @@ $error = $_GET['error'] ?? '';
 
 <div id="main-content">
 
-    <!-- Success/Error Messages -->
     <?php if ($success): ?>
         <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
             <i class="bi bi-check-circle me-2"></i><?php echo htmlspecialchars($success); ?>
@@ -128,12 +117,10 @@ $error = $_GET['error'] ?? '';
         </div>
     <?php endif; ?>
 
-    <!-- Welcome / Header + Stats -->
     <div class="welcome-card mb-4">
         <h1 class="display-5 fw-bold mb-2">Saved Jobs</h1>
         <p class="fs-5 mb-4">Jobs you've bookmarked for later</p>
 
-        <!-- Stats inside welcome-card -->
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="stat-card d-flex align-items-center gap-3 p-3 shadow-sm bg-white bg-opacity-75">
@@ -147,7 +134,6 @@ $error = $_GET['error'] ?? '';
         </div>
     </div>
 
-    <!-- Saved Jobs List -->
     <div class="row g-4">
         <div class="col-12">
             <?php if (!empty($savedJobs)): ?>
