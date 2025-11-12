@@ -1,0 +1,91 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#sidebar {
+    width: 280px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Active menu item */
+#sidebar .menu-item.active {
+    background: #2574fcd0;
+    color: white !important;
+    font-weight: bold;
+    border-radius: 1rem;
+}
+
+/* Dropdown button */
+.dropdown-toggle {
+    background-color: rgba(13, 110, 253, 0.05); 
+    justify-content: flex-start;
+    color: #0d6efd;
+    font-weight: 500;
+    border: none;
+    border-radius: 0.75rem;
+    transition: all 0.25s ease;
+    width: 100%;
+}
+
+.dropdown-toggle:hover {
+    background-color: rgba(13, 110, 253, 0.12);
+    color: #0a58ca;
+}
+
+.dropdown-toggle::after {
+    display: none;
+}
+
+/* Open dropdown state */
+.dropdown.show .dropdown-toggle {
+    background-color: rgba(13, 110, 253, 0.18);
+    color: #084298;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+    background-color: #e5f5fdff;
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: rgba(13, 110, 253, 0.08);
+    border-radius: 0.5rem;
+}
+
+/* Divider line before account section */
+#sidebar .dropdown.mt-auto {
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+    padding-top: .5rem;
+    margin-top: 1rem;
+}
+
+/* Responsive sidebar for small screens */
+@media (max-width: 768px) {
+    #sidebar {
+        position: fixed;
+        left: -280px;
+        transition: left 0.3s;
+        z-index: 1000;
+    }
+
+    #sidebar.show {
+        left: 0;
+    }
+
+    body {
+        flex-direction: column;
+    }
+}
